@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Le jeu du pendu</title>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Playwrite+IT+Moderna:wght@100..400&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap"
+			rel="stylesheet" />
+		<script src="script.js" defer></script>
+	</head>
+	<body>
+		<header>
+			<h1>Le jeu du pendu</h1>
+			<p class="instructions">
+				Trouvez le mot caché! Entrez une lettre à la fois.
+			</p>
+
+			<div class="game-controls">
+				<div class="control-group">
+					<label for="difficulty">Difficulté:</label>
+					<select
+						id="difficulty"
+						name="difficulty"
+						class="difficulty"
+						aria-label="Sélection de la difficulté">
+						<option id="easy" value="easy">Mode normal</option>
+						<option id="hard" value="hard">Mode difficile</option>
+					</select>
+				</div>
+
+				<div class="control-group">
+					<button class="reset-button" aria-label="Réinitialiser le jeu">
+						Nouveau mot
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<main class="conteneur-jeu">
+			<div class="game-info">
+				<div class="conteneur-theme">
+					<h3>Thème du mot:</h3>
+					<span class="displayTheme" aria-live="polite"></span>
+				</div>
+
+				<div class="conteneur-lettresFausses">
+					<p>Lettres fausses:</p>
+					<div class="lettresFausses" aria-live="polite"></div>
+				</div>
+			</div>
+
+			<div class="game-display">
+				<svg
+					height="250"
+					width="200"
+					class="conteneur-pendu"
+					aria-label="Dessin du pendu">
+					<!-- Potence -->
+					<line x1="60" y1="20" x2="140" y2="20" />
+					<line x1="140" y1="20" x2="140" y2="50" />
+					<line x1="60" y1="20" x2="60" y2="230" />
+					<line x1="20" y1="230" x2="100" y2="230" />
+
+					<!-- Eléments du pendu -->
+					<circle cx="140" cy="70" r="20" class="pendu-parts" />
+					<line x1="140" y1="90" x2="140" y2="150" class="pendu-parts" />
+					<line x1="140" y1="120" x2="120" y2="100" class="pendu-parts" />
+					<line x1="140" y1="120" x2="160" y2="100" class="pendu-parts" />
+					<line x1="140" y1="150" x2="120" y2="180" class="pendu-parts" />
+					<line x1="140" y1="150" x2="160" y2="180" class="pendu-parts" />
+				</svg>
+
+				<div class="mot" aria-live="polite" aria-label="Mot à deviner"></div>
+			</div>
+
+			<!-- Emplacement pour le clavier virtuel -->
+			<div id="clavier-container" class="clavier-container"></div>
+		</main>
+
+		<!-- Modal fin de jeu -->
+		<div
+			class="conteneur-popUp"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="messageFinal">
+			<div class="popUp">
+				<h2 class="messageFinal" id="messageFinal"></h2>
+				<div class="popup-buttons">
+					<button class="play-button">Rejouer</button>
+					<button class="share-button">Partager</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Notifications -->
+		<div class="notif" aria-live="assertive">
+			<p>Vous avez déjà essayé cette lettre!</p>
+		</div>
+
+		<!-- Compteur de score -->
+		<footer class="score-footer">
+			<div class="score-container">
+				<span>Victoires: <span class="victories">0</span></span>
+				<span>Défaites: <span class="defeats">0</span></span>
+			</div>
+			<p class="copyright">© 2025 - Le jeu du pendu</p>
+		</footer>
+	</body>
+</html>

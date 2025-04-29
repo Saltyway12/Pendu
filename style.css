@@ -1,0 +1,426 @@
+/* === Style général avec palette accessible et chaleureuse === */
+
+/* Variables CSS globales */
+:root {
+	--primary-color: #2e2e2e; /* Couleur principale du texte */
+	--secondary-color: #fff8f0; /* Couleur de fond principale */
+	--accent-color: #ffb703; /* Couleur des boutons et éléments actifs */
+	--popup-bg: #fb8500; /* Fond des popups */
+	--shadow-color: rgba(0, 0, 0, 0.2); /* Ombres douces */
+	--text-shadow: 2px 2px 2px var(--primary-color); /* Effet d'ombre du texte */
+	--border-radius: 5px; /* Rayon standard des coins arrondis */
+	--spacing-xs: 5px;
+	--spacing-sm: 10px;
+	--spacing-md: 20px;
+	--spacing-lg: 30px;
+}
+
+/* Réinitialisation des marges et paddings de base */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Responsive design pour petits écrans */
+@media (max-width: 480px) {
+	body {
+		padding: var(--spacing-sm);
+	}
+
+	header h1 {
+		font-size: 2rem;
+	}
+
+	.key-button {
+		min-width: 32px;
+		height: 36px;
+		font-size: 1rem;
+	}
+
+	.mot .lettres {
+		height: 40px;
+		width: 18px;
+	}
+
+	.conteneur-jeu {
+		padding: var(--spacing-sm);
+	}
+}
+
+/* Responsive design pour orientation paysage sur mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+	body {
+		padding: var(--spacing-xs);
+	}
+
+	header h1 {
+		margin-bottom: 0;
+	}
+
+	.instructions,
+	.game-controls {
+		margin-bottom: var(--spacing-xs);
+	}
+
+	.conteneur-jeu {
+		padding: var(--spacing-xs);
+	}
+
+	.game-display {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-around;
+	}
+
+	.conteneur-pendu {
+		height: clamp(160px, 40vh, 200px);
+		width: clamp(130px, 30vh, 170px);
+	}
+}
+
+/* Animation douce sur le mot */
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+		background-color: #ffd166;
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* Styles des liens */
+a {
+	color: inherit;
+	text-decoration: underline;
+
+	&:hover {
+		text-decoration: none;
+	}
+
+	&:focus {
+		outline: 2px solid var(--popup-bg);
+		border-radius: 2px;
+	}
+}
+
+body {
+	background-color: var(--secondary-color);
+	color: var(--primary-color);
+	font-family: "Roboto Condensed", sans-serif;
+	letter-spacing: 2px;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	padding: var(--spacing-md);
+
+	/* En-tête du jeu */
+	header {
+		text-align: center;
+		margin-bottom: var(--spacing-md);
+
+		h1 {
+			font-size: clamp(2rem, 5vw, 3.5rem);
+			letter-spacing: 5px;
+			text-shadow: var(--text-shadow);
+			margin-bottom: var(--spacing-sm);
+		}
+
+		.instructions {
+			margin-bottom: var(--spacing-md);
+			font-size: clamp(1rem, 3vw, 1.2rem);
+		}
+
+		.game-controls {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: var(--spacing-md);
+			margin-bottom: var(--spacing-md);
+
+			.control-group {
+				display: flex;
+				align-items: center;
+				gap: var(--spacing-sm);
+
+				select,
+				.reset-button {
+					padding: var(--spacing-xs) var(--spacing-sm);
+					background-color: var(--accent-color);
+					color: var(--primary-color);
+					border: none;
+					border-radius: var(--border-radius);
+					font-size: 1rem;
+					cursor: pointer;
+					transition: transform 0.2s ease, opacity 0.2s ease;
+
+					&:hover {
+						background-color: #ffd166; /* Teinte plus claire au survol */
+						opacity: 1;
+					}
+
+					&:active {
+						transform: scale(0.96);
+						background-color: #fca311; /* Teinte au clic */
+					}
+
+					&:focus {
+						outline: 2px solid var(--popup-bg);
+						outline-offset: 2px;
+					}
+				}
+			}
+		}
+	}
+
+	/* Zone principale de jeu : pendu, mot et clavier */
+	main.conteneur-jeu {
+		flex: 1;
+		max-width: 900px;
+		margin: auto;
+		padding: var(--spacing-md);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-md);
+
+		.game-info {
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			gap: var(--spacing-md);
+
+			.conteneur-theme,
+			.conteneur-lettresFausses {
+				background-color: rgba(0, 0, 0, 0.1);
+				padding: var(--spacing-sm);
+				border-radius: var(--border-radius);
+				min-width: 150px;
+
+				h3,
+				p {
+					margin-bottom: var(--spacing-xs);
+					font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+				}
+
+				.displayTheme,
+				.lettresFausses {
+					font-size: clamp(1rem, 3vw, 1.3rem);
+					word-break: break-word;
+
+					span {
+						margin-right: var(--spacing-xs);
+					}
+				}
+			}
+		}
+
+		.game-display {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: var(--spacing-md);
+
+			.conteneur-pendu {
+				height: clamp(200px, 50vw, 250px);
+				width: clamp(160px, 40vw, 200px);
+				stroke: var(--accent-color);
+				stroke-width: 4px;
+				stroke-linecap: round;
+				fill: transparent;
+			}
+
+			.mot {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: var(--spacing-xs);
+				margin-top: var(--spacing-md);
+				animation: pulse 1s ease-in-out;
+
+				.lettres {
+					border-bottom: 3px solid var(--primary-color);
+					font-size: clamp(1.5rem, 5vw, 2rem);
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					height: 50px;
+					width: 20px;
+					margin: 0 3px;
+				}
+			}
+		}
+
+		.clavier-container {
+			margin-top: var(--spacing-md);
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: var(--spacing-xs);
+
+			.key-button {
+				min-width: 40px;
+				height: 40px;
+				margin: 3px;
+				font-size: 1.2rem;
+				background-color: var(--accent-color);
+				color: var(--primary-color);
+				border: none;
+				border-radius: var(--border-radius);
+				cursor: pointer;
+				transition: transform 0.1s ease-in-out, opacity 0.1s ease;
+
+				&:hover {
+					background-color: #ffd166;
+					opacity: 1;
+				}
+
+				&:active,
+				&.used {
+					transform: scale(0.95);
+					opacity: 0.7;
+				}
+
+				&:focus {
+					outline: 2px solid var(--popup-bg);
+					outline-offset: 2px;
+				}
+			}
+		}
+	}
+
+	/* Pop-up de fin de jeu */
+	.conteneur-popUp {
+		background-color: rgba(0, 0, 0, 0.7);
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		z-index: 100;
+		padding: var(--spacing-md);
+
+		.popUp {
+			background-color: var(--popup-bg);
+			border-radius: var(--border-radius);
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+			padding: var(--spacing-lg);
+			text-align: center;
+			max-width: 90%;
+			width: 400px;
+
+			.messageFinal {
+				margin-bottom: var(--spacing-md);
+				font-size: clamp(1.2rem, 4vw, 1.5rem);
+			}
+
+			.popup-buttons {
+				display: flex;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: var(--spacing-md);
+
+				.play-button,
+				.share-button {
+					background-color: var(--accent-color);
+					color: var(--primary-color);
+					border: none;
+					border-radius: var(--border-radius);
+					padding: var(--spacing-sm) var(--spacing-lg);
+					font-size: 1rem;
+					font-weight: bold;
+					cursor: pointer;
+					transition: transform 0.2s ease, background-color 0.2s ease;
+
+					&:hover {
+						background-color: #ffd166;
+					}
+
+					&:active {
+						transform: scale(0.96);
+						background-color: #fca311;
+					}
+
+					&:focus {
+						outline: 2px solid var(--popup-bg);
+						outline-offset: 2px;
+					}
+				}
+			}
+		}
+	}
+
+	/* Notification d'erreur lettre déjà utilisée */
+	.notif {
+		background-color: var(--shadow-color);
+		border-radius: var(--border-radius) var(--border-radius) 0 0;
+		padding: var(--spacing-sm) var(--spacing-md);
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%) translateY(80px);
+		text-align: center;
+		width: clamp(250px, 80%, 400px);
+		z-index: 50;
+		transition: transform 0.3s ease-in-out;
+
+		&.afficher {
+			transform: translateX(-50%) translateY(0);
+		}
+	}
+
+	/* Pied de page avec score */
+	footer.score-footer {
+		margin-top: var(--spacing-md);
+		text-align: center;
+		padding: var(--spacing-md) 0;
+
+		.score-container {
+			display: flex;
+			justify-content: center;
+			gap: var(--spacing-lg);
+			font-size: 1.1rem;
+			margin-bottom: var(--spacing-sm);
+		}
+
+		.copyright {
+			font-size: 0.8rem;
+			opacity: 0.7;
+		}
+	}
+}
+
+/* Animation douce sur le mot */
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+		background-color: #ffd166;
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* Styles des liens */
+a {
+	color: inherit;
+	text-decoration: underline;
+
+	&:hover {
+		text-decoration: none;
+	}
+
+	&:focus {
+		outline: 2px solid var(--popup-bg);
+		border-radius: 2px;
+	}
+}
