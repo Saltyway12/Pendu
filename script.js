@@ -19,6 +19,7 @@ const defeatCount = document.querySelector(".defeats");
 
 // Variables du jeu
 let motChoisi = "";
+let motSansAccents = ""; // Nouvelle variable pour stocker le mot sans accents
 let theme = {};
 const MAX_ERREURS = 6;
 const bonnesLettresArr = [];
@@ -27,8 +28,47 @@ let jeuEnCours = true;
 let victories = 0;
 let defeats = 0;
 
-// Initialisation du jeu
-initialiserJeu();
+// Table de correspondance des accents
+const mapAccents = {
+	à: "a",
+	á: "a",
+	â: "a",
+	ã: "a",
+	ä: "a",
+	å: "a",
+	è: "e",
+	é: "e",
+	ê: "e",
+	ë: "e",
+	ì: "i",
+	í: "i",
+	î: "i",
+	ï: "i",
+	ò: "o",
+	ó: "o",
+	ô: "o",
+	õ: "o",
+	ö: "o",
+	ù: "u",
+	ú: "u",
+	û: "u",
+	ü: "u",
+	ÿ: "y",
+	ñ: "n",
+	ç: "c",
+};
+
+/**
+ * Enlève les accents d'une chaîne de caractères
+ * @param {string} str - La chaîne à normaliser
+ * @return {string} La chaîne sans accents
+ */
+function enleverAccents(str) {
+	return str
+		.split("")
+		.map((char) => mapAccents[char] || char)
+		.join("");
+}
 
 /**
  * Initialise ou réinitialise le jeu
@@ -108,13 +148,14 @@ function choisirMot() {
 				throw new Error("Aucun mot dans le tirage");
 			}
 
-			// Vérifier que le mot contient uniquement des lettres (avec accents)
-			if (/^[a-zA-ZÀ-ÿ]+$/.test(words)) {
+			// Vérifier que le mot contient uniquement des lettres (avec accents), des espaces ou des tirets
+			if (/^[a-zA-ZÀ-ÿ \-]+$/.test(words)) {
 				motChoisi = words.toLowerCase();
+				motSansAccents = enleverAccents(motChoisi); // Stocker la version sans accents
 				theme = randomTheme;
 				afficherMot();
 				console.log(
-					`Thème: ${randomTheme.Thème_}, Lettre: ${randomLetters.Lettre}, Mot: ${motChoisi}`
+					`Thème: ${randomTheme.Thème_}, Lettre: ${randomLetters.Lettre}, Mot: ${motChoisi}, Sans accents: ${motSansAccents}`
 				);
 			} else {
 				console.error("Le mot n'est pas valide :", words);
@@ -141,18 +182,22 @@ function utiliserMotsAlternatifs() {
 
 			// Sélection aléatoire d'un mot
 			motChoisi = mots[Math.floor(Math.random() * mots.length)].toLowerCase();
+			motSansAccents = enleverAccents(motChoisi); // Stocker la version sans accents
 
 			// Définir un thème générique
 			theme = { Thème_: "Programmation" };
 
 			// Afficher le mot
 			afficherMot();
-			console.log(`Utilisation d'un mot alternatif: ${motChoisi}`);
+			console.log(
+				`Utilisation d'un mot alternatif: ${motChoisi}, Sans accents: ${motSansAccents}`
+			);
 		})
 		.catch((error) => {
 			console.error("Erreur avec la liste alternative :", error);
 			// En dernier recours, utiliser un mot par défaut
 			motChoisi = "javascript";
+			motSansAccents = "javascript"; // Pas d'accents dans ce mot par défaut
 			theme = { Thème_: "Programmation" };
 			afficherMot();
 		});
@@ -165,13 +210,20 @@ function afficherMot() {
 	// Afficher le mot avec les lettres trouvées
 	motEl.innerHTML = motChoisi
 		.split("")
-		.map(
-			(lettre) => `
-            <span class="lettres">${
-							bonnesLettresArr.includes(lettre) ? lettre : ""
-						}</span>
-        `
-		)
+		.map((lettre, index) => {
+			// Traiter différemment les espaces et tirets (toujours visibles)
+			if (lettre === " ") {
+				return `<span class="lettres espace" data-index="${index}">&nbsp;</span>`;
+			} else if (lettre === "-") {
+				return `<span class="lettres tiret" data-index="${index}">-</span>`;
+			} else {
+				return `
+            <span class="lettres" data-index="${index}">${
+					bonnesLettresArr.includes(lettre) ? lettre : ""
+				}</span>
+          `;
+			}
+		})
 		.join("");
 
 	// Afficher ou masquer le thème selon la difficulté
@@ -189,11 +241,16 @@ function afficherMot() {
  * Vérifie si le joueur a trouvé toutes les lettres du mot
  */
 function verifierVictoire() {
-	// Récupérer le mot affiché sans les sauts de ligne
-	const motInterne = motEl.innerText.replace(/\n/g, "").trim();
+	// Vérifier si toutes les lettres du mot ont été trouvées
+	// (ignorer les espaces et tirets qui sont déjà affichés)
+	const toutesLettresTrouvees = motChoisi.split("").every((lettre) => {
+		return (
+			lettre === " " || lettre === "-" || bonnesLettresArr.includes(lettre)
+		);
+	});
 
-	// Si le mot affiché est complet, c'est gagné
-	if (motInterne === motChoisi && jeuEnCours) {
+	// Si toutes les lettres ont été trouvées, c'est gagné
+	if (toutesLettresTrouvees && jeuEnCours) {
 		jeuEnCours = false;
 		// Incrémenter le compteur de victoires
 		victories++;
@@ -269,17 +326,44 @@ function afficherNotification(message) {
  * @param {string} lettre - La lettre appuyée
  */
 function traiterLettre(lettre) {
-	// Si le jeu est terminé ou ce n'est pas une lettre, on ne fait rien
+	// Si le jeu est terminé ou ce n'est pas une lettre valide, on ne fait rien
 	if (!jeuEnCours || !/^[a-zà-ÿ]$/.test(lettre)) {
 		return;
 	}
 
-	// Traiter la lettre selon qu'elle est dans le mot ou non
-	if (motChoisi.includes(lettre)) {
-		// La lettre est dans le mot
-		if (!bonnesLettresArr.includes(lettre)) {
-			// Ajouter la lettre aux bonnes lettres
-			bonnesLettresArr.push(lettre);
+	// Enlever les accents de la lettre saisie pour la comparaison
+	const lettreSansAccent = enleverAccents(lettre);
+
+	// Vérifier si la lettre est dans le mot (en tenant compte des accents)
+	const lettreExisteDansMot = Array.from(motChoisi).some(
+		(char) => enleverAccents(char) === lettreSansAccent
+	);
+
+	if (lettreExisteDansMot) {
+		// La lettre est dans le mot (sans tenir compte des accents)
+		if (!bonnesLettresArr.some((l) => enleverAccents(l) === lettreSansAccent)) {
+			// Ajouter toutes les variantes accentuées de cette lettre qui sont dans le mot
+			const lettresAcorrespondantes = Array.from(motChoisi).filter(
+				(char) =>
+					enleverAccents(char) === lettreSansAccent &&
+					!bonnesLettresArr.includes(char)
+			);
+
+			// Ajouter ces lettres aux bonnes lettres
+			lettresAcorrespondantes.forEach((l) => {
+				if (!bonnesLettresArr.includes(l)) {
+					bonnesLettresArr.push(l);
+				}
+			});
+
+			// Si une lettre sans accent a été tapée mais qu'elle existe avec accent dans le mot,
+			// ajouter aussi la lettre sans accent aux bonnes lettres pour le clavier virtuel
+			if (
+				!bonnesLettresArr.includes(lettre) &&
+				!lettresAcorrespondantes.includes(lettre)
+			) {
+				bonnesLettresArr.push(lettre);
+			}
 
 			// Mettre à jour l'affichage du mot
 			afficherMot();
@@ -291,7 +375,9 @@ function traiterLettre(lettre) {
 		}
 	} else {
 		// La lettre n'est pas dans le mot
-		if (!mauvaiseLettresArr.includes(lettre)) {
+		if (
+			!mauvaiseLettresArr.some((l) => enleverAccents(l) === lettreSansAccent)
+		) {
 			// Ajouter aux mauvaises lettres
 			mauvaiseLettresArr.push(lettre);
 
@@ -315,11 +401,12 @@ function traiterLettre(lettre) {
 function animerLettreTrouvee(lettre) {
 	// Sélectionner toutes les cases avec cette lettre
 	const casesLettres = motEl.querySelectorAll(".lettres");
+	const lettreSansAccent = enleverAccents(lettre);
 
 	// Appliquer une animation aux cases correspondant à la lettre trouvée
 	casesLettres.forEach((caseLettre) => {
 		const index = parseInt(caseLettre.dataset.index);
-		if (motChoisi[index] === lettre) {
+		if (enleverAccents(motChoisi[index]) === lettreSansAccent) {
 			// Ajouter une classe pour l'animation
 			caseLettre.classList.add("lettre-trouvee");
 
@@ -364,6 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
  * Crée le clavier virtuel
  */
 function creerClavierVirtuel() {
+	// Définir les lettres du clavier (seulement les lettres sans accent)
 	const lettres = "abcdefghijklmnopqrstuvwxyz";
 
 	// On vide d'abord le contenu existant
@@ -391,11 +479,12 @@ function updateClavierVirtuel() {
 
 	touches.forEach((touche) => {
 		const lettre = touche.dataset.lettre;
+		const lettreSansAccent = enleverAccents(lettre);
 
-		// Si la lettre a déjà été essayée
+		// Si la lettre a déjà été essayée (avec ou sans accent)
 		if (
-			bonnesLettresArr.includes(lettre) ||
-			mauvaiseLettresArr.includes(lettre)
+			bonnesLettresArr.some((l) => enleverAccents(l) === lettreSansAccent) ||
+			mauvaiseLettresArr.some((l) => enleverAccents(l) === lettreSansAccent)
 		) {
 			touche.classList.add("used");
 			touche.setAttribute("disabled", true);

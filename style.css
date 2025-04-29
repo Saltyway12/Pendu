@@ -251,6 +251,22 @@ body {
 					width: 20px;
 					margin: 0 3px;
 				}
+
+				/* Styles pour les espaces et tirets */
+				.lettres.espace {
+					border-bottom: none;
+					margin: 0 8px;
+				}
+
+				.lettres.tiret {
+					border-bottom: none;
+					font-weight: bold;
+				}
+
+				/* Style pour l'animation des lettres trouvées */
+				.lettres.lettre-trouvee {
+					animation: pulse 0.5s ease-in-out;
+				}
 			}
 		}
 
@@ -393,34 +409,5 @@ body {
 			font-size: 0.8rem;
 			opacity: 0.7;
 		}
-	}
-}
-
-/* Animation douce sur le mot */
-@keyframes pulse {
-	0% {
-		transform: scale(1);
-	}
-	50% {
-		transform: scale(1.05);
-		background-color: #ffd166;
-	}
-	100% {
-		transform: scale(1);
-	}
-}
-
-/* Styles des liens */
-a {
-	color: inherit;
-	text-decoration: underline;
-
-	&:hover {
-		text-decoration: none;
-	}
-
-	&:focus {
-		outline: 2px solid var(--popup-bg);
-		border-radius: 2px;
 	}
 }
